@@ -16,7 +16,6 @@ export class NgIf {
     this.view = null;
   }
   ngIfChanged(value) {
-    console.log('ngIf', value);
     if (typeof value === 'string') {
       // parse initial attribute
       value = value === 'true';

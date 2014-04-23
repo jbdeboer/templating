@@ -5,6 +5,8 @@ import {Global} from './global';
 import {DocumentReady} from './util/document_ready';
 import {ViewFactory} from './view_factory';
 
+var digestCount = 0;
+
 export function bootstrap(compileTemplatesOnTheFly = true) {
   var injector = new Injector();
   injector.get(Bootstrap)(compileTemplatesOnTheFly);
@@ -26,11 +28,15 @@ export function Bootstrap(global, moduleLoader, documentReady) {
       if (!appTemplates) {
         return;
       }
+
       appTemplates.forEach((template) => {
         var rootView;
-        window.zone.fork({
+        
+        var fork = window.zone.fork({
           afterTask: function () {
             if (rootView) {
+              digestCount++;
+              if (digestCount % 10 == 0) console.log('digestCount', digestCount);
               rootView.digest();
             }
           },
@@ -38,7 +44,9 @@ export function Bootstrap(global, moduleLoader, documentReady) {
             // TODO(vojta): nice error handling for Tobias
             console.log(err.stack)
           }
-        }).run(function() {
+        });
+
+        fork.run(function() {
           var rootInjector = new Injector();
           var viewFactory = rootInjector.get(ViewFactory);
 
@@ -63,8 +71,9 @@ export function Bootstrap(global, moduleLoader, documentReady) {
           benchmarkSteps.push({
             name: 'cleanup',
             fn: function CleanUp() {
-              scope.initData = {};
-              rootView.digest();
+              fork.run(function () {
+                scope.initData = {};
+              });
             }
           });
 
@@ -72,12 +81,15 @@ export function Bootstrap(global, moduleLoader, documentReady) {
           benchmarkSteps.push({
             name: 'createDom',
             fn: function CreateDom() {
-              scope.initData = initHello;
+              fork.run(function () {
+                digestCount = 0;
+                //scope.initData = initHello;
+              
 
-             /* var values = [];
-              var maxDepth = 2;
+              var values = [];
+              var maxDepth = 4;
                for (var i = 0; i < maxDepth; i++) {
-                  values.push(Math.random() > 0.5 ? '|' : '-');
+                  values.push(i /*Math.random() > 0.5 ? '|' : '-'*/);
                 }
              function buildData(depth) {
                   if (depth == maxDepth) return {};
@@ -87,15 +99,14 @@ export function Bootstrap(global, moduleLoader, documentReady) {
                     left: buildData(depth + 1)
                   }
                 }
-              scope.initData = c++ % 2 == 0 ? initHello : initBye; 
-              console.log('initData', scope.initData); */
-
+              scope.initData = buildData(0); 
+              //console.log('initData', scope.initData);
+            });
               // scope.initData = {
               //   value: 'Hello ' + c++,
               //   right: { value: 'World' },
               //   left: { value: 'Everybody' }  
               // }
-              rootView.digest();
             }
           });
 

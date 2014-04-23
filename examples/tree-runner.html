@@ -46,6 +46,9 @@
 <body>
 
 <div id="benchmarkContainer"></div>
+<p>
+  Renders a numbered in-fix tree using Angular 2.0
+</p>
 
 <div ng-app>
   <tree bind-tree-data="initData"></tree>
@@ -64,6 +67,10 @@
   container.appendChild(infoDiv);
 
   function toggleBenchmark() {
+    running = true;
+    window.requestAnimationFrame(runBenchmarkSteps);
+    return;
+
     if (running) {
       btn.innerText = "Go";
       running = false;
@@ -76,7 +83,7 @@
 
   var runBenchmarkSteps;
   runBenchmarkSteps = function() {
-    //if (!running) return;
+    if (!running) return;
     // Run all the steps;
     var times = [];
     benchmarkSteps.forEach(function(bs) {
