@@ -5,7 +5,7 @@ import {$, $html} from './dom_mocks';
 import {NgNode} from '../src/ng_node';
 import {RootWatchGroup} from 'watchtower';
 
-describe('View', () => {
+ddescribe('View', () => {
   var viewPort;
   var $rootElement;
   var anchorHtml = '<!-- anchor -->',
@@ -311,6 +311,27 @@ describe('View', () => {
   });
 
   describe('digest', ()=>{
+    iit('should work', () => {
+      var abcValue;
+      a.executionContext['a'] =  { b: { c: 3 }};
+      a.watch('a.b.c', function(value) {
+        abcValue = value;
+      });
+      
+      console.log('digest 1');
+      a.digest();
+      console.log('ok');
+
+      expect(abcValue).toBe(3);
+      a.executionContext['a'] = { }
+      a.digest();
+      expect(abcValue).toBe(undefined);
+      a.executionContext['a'] = { b: { c: 3 }};
+      a.digest();
+      expect(abcValue).toBe(3);
+      
+
+    });
 
     it('should check the watchGrp for changes', () => {
       spyOn(a.watchGrp, 'detectChanges');

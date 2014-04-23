@@ -76,7 +76,7 @@
 
   var runBenchmarkSteps;
   runBenchmarkSteps = function() {
-    if (!running) return;
+    //if (!running) return;
     // Run all the steps;
     var times = [];
     benchmarkSteps.forEach(function(bs) {
@@ -88,7 +88,7 @@
     infoDiv.innerText = times.join(' ');
 
     //console.log('hello');
-    window.requestAnimationFrame(runBenchmarkSteps);
+    //window.requestAnimationFrame(runBenchmarkSteps);
   }
   //toggleBenchmark();
 
