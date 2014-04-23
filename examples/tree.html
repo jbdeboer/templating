@@ -1,0 +1,8 @@
+<module src="./ngIf"></module>
+<module src="./tree"></module>
+
+<span> {{treeData.value}}
+  <span ng-if="{{!!treeData.right}}"><tree bind-tree-data=treeData.right></span>
+  <span ng-if="{{!!treeData.left}}"><tree bind-tree-data=treeData.left></span>
+</span>
+

@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+<script>
+  var benchmarkSteps = [];
+  </script>
+
+  <script type="text/javascript" src="/node_modules/es6-shim/es6-shim.js"></script>
+  <script type="text/javascript" src="/node_modules/zone.js/zone.js"></script>
+
+  <script type="text/javascript" src="/node_modules/requirejs/require.js"></script>
+  <script type="text/javascript" src="/node_modules/traceur/bin/traceur-runtime.js"></script>
+
+  <!-- TODO: include source maps! -->
+  <!-- TODO: create standalone repo for examples, e.g. v2_examples -->
+
+  <script>
+    var COMPILE_TEMPLATES_ON_THE_FLY = /compile_templates/.test(location.search);
+
+    require.config({
+      baseUrl: '/temp/examples',
+      paths: {
+        'deps': '/node_modules',
+        'dist': '/dist',
+        'examples': '/temp/examples'
+      },
+      map: {
+        '*': {
+          'templating': 'dist/amd/index',
+          'compile_ng_template': 'dist/amd/loader/requirejs_html',
+          'di': 'deps/di/dist/amd/index',
+          'rtts-assert': 'deps/rtts-assert/dist/amd/assert',
+          'expressionist': 'deps/expressionist/dist/amd/index',
+          'watchtower': 'deps/watchtower/dist/amd/index'
+        }
+      },
+      deps: ['templating', COMPILE_TEMPLATES_ON_THE_FLY ? '/utils/loader.js' : null],
+      callback: function(templating) {
+        templating.bootstrap(COMPILE_TEMPLATES_ON_THE_FLY);
+      }
+    });
+  </script>
+
+  <module src="./tree"></module>
+</head>
+<body>
+
+<div id="benchmarkContainer"></div>
+
+<div ng-app>
+  <tree bind-tree-data="initData"></tree>
+</div>
+
+   <script>
+  // Benchmark runner
+  var btn = document.createElement('button');
+  btn.innerText = "Go";
+  var running = false;
+  btn.addEventListener('click', toggleBenchmark);
+  var container = document.querySelector('#benchmarkContainer');
+  container.appendChild(btn);
+
+  var infoDiv = document.createElement('div');
+  container.appendChild(infoDiv);
+
+  function toggleBenchmark() {
+    if (running) {
+      btn.innerText = "Go";
+      running = false;
+    } else {
+      btn.innerHtml = "Pause";
+      running = true;
+      window.requestAnimationFrame(runBenchmarkSteps);
+    }
+  }
+
+  var runBenchmarkSteps;
+  runBenchmarkSteps = function() {
+    if (!running) return;
+    // Run all the steps;
+    var times = [];
+    benchmarkSteps.forEach(function(bs) {
+      var startTime = window.performance.now();
+      bs.fn();
+      var delta = window.performance.now() - startTime;
+      times.push(bs.name + ':' + ('' + delta).substr(0,5));
+    });
+    infoDiv.innerText = times.join(' ');
+
+    //console.log('hello');
+    window.requestAnimationFrame(runBenchmarkSteps);
+  }
+  //toggleBenchmark();
+
+  </script>
+</body>
+</html>

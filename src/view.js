@@ -105,7 +105,7 @@ export class RootView extends View {
   }
   digest() {
     // TODO: Make the TTL configurable!
-    var ttl = 5, count;
+    var ttl = 50, count;
     do {
       if (ttl == 0) {
         // TODO: Add change log information to the error, see
